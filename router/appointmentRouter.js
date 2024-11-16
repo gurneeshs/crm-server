@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post("/post", isPatientAuthenticated, postAppointment);
 router.get("/getall", isAdminAuthenticated, getAllAppointments);
-router.get("/getappointment", isAdminAuthenticated, getAppointment);
+router.get("/getappointment", getAppointment);
 router.put("/update/:id", isAdminAuthenticated, updateAppointmentStatus);
 router.delete("/delete/:id", isAdminAuthenticated, deleteAppointment);
 

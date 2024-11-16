@@ -13,7 +13,6 @@ export const isAdminAuthenticated = catchAsyncErrors(
       );
     }
     const decoded = jwt.verify(token, 'asjhdkjahkjdlfhksahfksad');
-    console.log(decoded)
     req.user = await User.findById(decoded.id);
     if (req.user.role !== "Admin") {
       return next(

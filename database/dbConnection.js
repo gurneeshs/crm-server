@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 export const dbConnection = () => {
   mongoose
-    .connect('mongodb://localhost:27017', {
+    .connect('mongodb+srv://singhgurneesh2022:WVrP4X6WJ6s1Pyti@cluster0.8hftb.mongodb.net/chatbot?retryWrites=true&w=majority&appName=Cluster0', {
       dbName: "MERN_STACK_HOSPITAL_MANAGEMENT_SYSTEM",
     })
     .then(() => {

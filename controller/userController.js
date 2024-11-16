@@ -197,7 +197,8 @@ export const getDoctorsbyDepartment = catchAsyncErrors(async (req, res, next) =>
       query.doctorDepartment = department; // Add department filter if provided
     }
 
-    const doctors = await User.find({ role: "Doctor", doctorDepartment: department }); // Query the database
+    const doctors = await User.findOne({ role: "Doctor", doctorDepartment: department }); // Query the database
+    console.log(doctors)
     res.status(200).json(doctors);
   } catch (error) {
     res.status(500).json({ message: "Error fetching doctors", error: error.message });

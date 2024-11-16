@@ -89,11 +89,11 @@ export const getAllAppointments = catchAsyncErrors(async (req, res, next) => {
   });
 });
 export const getAppointment = catchAsyncErrors(async (req, res, next) => {
-  const email = req.email;
-  const appointments = await Appointment.find({email:email});
+  const email = req.query.email;
+  const appointment = await Appointment.findOne({email:email});
   res.status(200).json({
     success: true,
-    appointments,
+    appointment,
   });
 });
 export const updateAppointmentStatus = catchAsyncErrors(

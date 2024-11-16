@@ -91,10 +91,7 @@ export const getAllAppointments = catchAsyncErrors(async (req, res, next) => {
 export const getAppointment = catchAsyncErrors(async (req, res, next) => {
   const email = req.query.email;
   const appointment = await Appointment.findOne({email:email});
-  res.status(200).json({
-    success: true,
-    appointment,
-  });
+  res.status(200).json(appointment);
 });
 export const updateAppointmentStatus = catchAsyncErrors(
   async (req, res, next) => {

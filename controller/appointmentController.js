@@ -1,6 +1,7 @@
 import { catchAsyncErrors } from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "../middlewares/error.js";
 import { Appointment } from "../models/appointmentSchema.js";
+import { tempAppointment } from "../models/tempappointmentSchema.js";
 import { User } from "../models/userSchema.js";
 
 export const postAppointment = catchAsyncErrors(async (req, res, next) => {
@@ -88,6 +89,13 @@ export const getAllAppointments = catchAsyncErrors(async (req, res, next) => {
     appointments,
   });
 });
+export const getAlltempAppointments = catchAsyncErrors(async (req, res, next) => {
+  const appointments = await tempAppointment.find();
+  res.status(200).json({
+    success: true,
+    appointments,
+  });
+});
 export const getAppointment = catchAsyncErrors(async (req, res, next) => {
   const email = req.query.email;
   const appointment = await Appointment.findOne({email:email});
@@ -111,6 +119,24 @@ export const updateAppointmentStatus = catchAsyncErrors(
     });
   }
 );
+export const updatetempAppointmentStatus = catchAsyncErrors(
+  async (req, res, next) => {
+    const { id } = req.params;
+    let appointment = await tempAppointment.findById(id);
+    if (!appointment) {
+      return next(new ErrorHandler("Appointment not found!", 404));
+    }
+    appointment = await tempAppointment.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: false,
+      useFindAndModify: false,
+    });
+    res.status(200).json({
+      success: true,
+      message: "Appointment Status Updated!",
+    });
+  }
+);
 export const deleteAppointment = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.params;
   const appointment = await Appointment.findById(id);
@@ -123,3 +149,38 @@ export const deleteAppointment = catchAsyncErrors(async (req, res, next) => {
     message: "Appointment Deleted!",
   });
 });
+
+export const postTempAppointment = catchAsyncErrors(async (req, res, next) => {
+  const {
+    firstName,
+    lastName,
+    phone,
+    age,
+    gender,
+    address,
+    issue,
+  } = req.body;
+  if (
+    !firstName ||
+    !lastName ||
+    !age ||
+    !phone ||
+    !gender ||
+    !address ||
+    !issue 
+
+  ) {
+    return next(new ErrorHandler("Please Fill Full Form!", 400));
+  }
+  const appointment = await tempAppointment.create({
+    firstName,
+    lastName,
+    age,
+    phone,
+    gender,
+    address,
+    issue
+  });
+  res.status(200).json(appointment);
+});
+

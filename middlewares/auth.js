@@ -2,6 +2,7 @@ import { User } from "../models/userSchema.js";
 import { catchAsyncErrors } from "./catchAsyncErrors.js";
 import ErrorHandler from "./error.js";
 import jwt from "jsonwebtoken";
+import {Doctor} from "../models/doctorSchema.js"
 
 // Middleware to authenticate dashboard users
 export const isAdminAuthenticated = catchAsyncErrors(
@@ -22,6 +23,27 @@ export const isAdminAuthenticated = catchAsyncErrors(
     next();
   }
 );
+
+export const isDoctorAuthenticated = catchAsyncErrors(
+  async (req, res, next) => {
+    const token = req.cookies.doctorToken;
+    // console.log(token)
+    if (!token) {
+      return next(
+        new ErrorHandler("Doctor is not authenticated!", 400)
+      );
+    }
+    const decoded = jwt.verify(token, 'asjhdkjahkjdlfhksahfksad');
+    req.user = await Doctor.findById(decoded.id);
+    if (req.user.role !== "Doctor") {
+      return next(
+        new ErrorHandler(`${req.user.role} not authorized for this resource!`, 403)
+      );
+    }
+    next();
+  }
+);
+
 
 // Middleware to authenticate frontend users
 export const isPatientAuthenticated = catchAsyncErrors(

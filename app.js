@@ -16,7 +16,7 @@ app.use(
   cors({
     origin: [process.env.FRONTEND_URL_ONE, process.env.FRONTEND_URL_TWO, process.env.FRONTEND_URL_THREE, process.env.FRONTEND_URL, process.env.DOCTOR_URL, process.env.ADMIN_URL],
     method: ["GET", "POST", "DELETE", "PUT"],
-    credentials: true,
+    credentials: false,
   })
 );
 

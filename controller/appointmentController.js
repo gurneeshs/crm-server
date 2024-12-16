@@ -131,6 +131,7 @@ export const getAllAppointments = catchAsyncErrors(async (req, res, next) => {
     appointments,
   });
 });
+
 export const getAlltempAppointments = catchAsyncErrors(async (req, res, next) => {
   const appointments = await tempAppointment.find();
   res.status(200).json({
@@ -141,6 +142,11 @@ export const getAlltempAppointments = catchAsyncErrors(async (req, res, next) =>
 export const getAppointment = catchAsyncErrors(async (req, res, next) => {
   const email = req.query.email;
   const appointment = await Appointment.findOne({email:email});
+  if(!appointment){
+    res.status(200).json({
+      message:"Appointment Not Found"
+    })
+  }
   res.status(200).json(appointment);
 });
 export const updateAppointmentStatus = catchAsyncErrors(

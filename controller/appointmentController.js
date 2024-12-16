@@ -291,15 +291,27 @@ export const retrieveUserToken = catchAsyncErrors(async(req,res,next)=>{
       email: userEmail,
       firstName: Name,
       // token: { $ne: null },
-      token: {$ne : null},
       status: { $in: ["Pending", "Accepted", "Rejected", "Completed"] },
     });
 
-    if (!appointment) {
-      return res.status(404).json({
-        success: false,
-        message: "Token Is Not Assigned Yet. Doctor is Not Arrived Yet!",
+    if (appointment.status === "Completed") {
+      return res.status(200).json({
+        success: true,
+        message: "Your Appointment is Completed!",
       });
+    }
+    if (appointment.token == null) {
+      return res.status(200).json({
+        success: true,
+        message: "Token Has Not Assigned Yet. Doctor has Not Arrived!",
+      });
+    }
+
+    if(!appointment){
+      return res.status(404).json({
+        success:false,
+        message:"Appointment Not Found",
+      })
     }
 
     res.status(200).json({

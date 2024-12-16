@@ -223,6 +223,7 @@ export const getDoctorsbyDepartment = catchAsyncErrors(async (req, res, next) =>
     }
 
     const doctors = await Doctor.findOne({ role: "Doctor", doctorDepartment: department }); // Query the database
+    console.log(doctors.appointments.length);
     res.status(200).json(doctors);
   } catch (error) {
     res.status(500).json({ message: "Error fetching doctors", error: error.message });

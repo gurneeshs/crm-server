@@ -19,6 +19,7 @@ export const postAppointment = catchAsyncErrors(async (req, res, next) => {
     doctor_lastName,
     hasVisited,
     address,
+    issue,
   } = req.body;
 
   if (
@@ -32,7 +33,8 @@ export const postAppointment = catchAsyncErrors(async (req, res, next) => {
     !department ||
     !doctor_firstName ||
     !doctor_lastName ||
-    !address
+    !address ||
+    !issue
   ) {
     return next(new ErrorHandler("Please Fill Full Form!", 400));
   }
@@ -73,7 +75,7 @@ export const postAppointment = catchAsyncErrors(async (req, res, next) => {
         appointment_date: appointmentDate.toISOString().split("T")[0],
       });
 
-      if (appointmentsOnDate.length < 10) {
+      if (appointmentsOnDate.length < 5) {
         return appointmentDate;
       }
 
@@ -103,6 +105,7 @@ export const postAppointment = catchAsyncErrors(async (req, res, next) => {
     address,
     doctorId,
     patientId,
+    issue,
   });
 
   // Update the doctor's record with the appointment
@@ -223,3 +226,88 @@ export const postTempAppointment = catchAsyncErrors(async (req, res, next) => {
   res.status(200).json(appointment);
 });
 
+export const tokenAssignment = catchAsyncErrors(async(req,res,next)=>{
+  try {
+    const doctorId = req.user._id; // Ensure user is authenticated and get doctor ID
+
+    // Fetch pending appointments for the doctor
+    const pendingAppointments = await Appointment.find({
+      doctorId: doctorId,
+      status: "Pending",
+    }).sort({ appointment_date: 1 }); // Sort by appointment date for consistency
+
+    // Assign sequential tokens starting from 1
+    let token = 1;
+    for (const appointment of pendingAppointments) {
+      appointment.token = token++;
+      await appointment.save();
+    }
+
+    // Return updated appointments
+    const updatedAppointments = await Appointment.find({ doctor: doctorId });
+
+    res.status(200).json({
+      success: true,
+      message: "Tokens assigned successfully",
+      updatedAppointments,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+export const updateAppointmentStatusCurrentToken = catchAsyncErrors(async(req,res,next)=>{
+  try {
+    const { status } = req.body;
+
+    const appointment = await Appointment.findById(req.params.id);
+
+    if (!appointment) {
+      return res.status(404).json({ success: false, message: "Appointment not found" });
+    }
+
+    // Update status and clear token if rejected
+    appointment.status = status;
+    if (status === "Rejected" || status === "Completed") {
+      appointment.token = null; // Remove token if appointment is rejected
+    }
+
+    await appointment.save();
+
+    res.status(200).json({ success: true, message: "Appointment updated successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+
+})
+
+export const retrieveUserToken = catchAsyncErrors(async(req,res,next)=>{
+  try {
+    const {userEmail, Name}  = req.query; // Ensure user is authenticated
+    // console.log(Name);
+
+    // Find the user's appointment with the assigned token
+    const appointment = await Appointment.findOne({
+      email: userEmail,
+      firstName: Name,
+      // token: { $ne: null },
+      token: {$ne : null},
+      status: { $in: ["Pending", "Accepted", "Rejected", "Completed"] },
+    });
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: "Token Is Not Assigned Yet. Doctor is Not Arrived Yet!",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      token: appointment.token,
+      message: `Your current token is ${appointment.token}`,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+})

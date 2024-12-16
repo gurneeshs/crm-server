@@ -7,10 +7,14 @@ import {
   updateAppointmentStatus,
   postTempAppointment,
   updatetempAppointmentStatus,
-  getAlltempAppointments
+  getAlltempAppointments,
+  tokenAssignment,
+  updateAppointmentStatusCurrentToken,
+  retrieveUserToken
 } from "../controller/appointmentController.js";
 import {
   isAdminAuthenticated,
+  isDoctorAuthenticated,
   isPatientAuthenticated,
 } from "../middlewares/auth.js";
 
@@ -24,5 +28,8 @@ router.get("/getappointment", getAppointment);
 router.put("/update/:id", isAdminAuthenticated, updateAppointmentStatus);
 router.put("/tempupdate/:id", isAdminAuthenticated, updatetempAppointmentStatus);
 router.delete("/delete/:id", isAdminAuthenticated, deleteAppointment);
+router.put("/assign-tokens", isDoctorAuthenticated, tokenAssignment);
+router.put("/updateTokenAppointment/:id", isDoctorAuthenticated, updateAppointmentStatusCurrentToken);
+router.get("/token", retrieveUserToken);
 
 export default router;
